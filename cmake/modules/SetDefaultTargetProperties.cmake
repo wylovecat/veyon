@@ -14,6 +14,11 @@ macro(set_default_target_properties TARGET_NAME)
 		-DQT_STRICT_ITERATORS
 	)
 	target_compile_options(${TARGET_NAME} PRIVATE "-Wall;-Werror")
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+		# GCC 16 warns about Qt headers defining classes which were previously used
+		# in an incomplete type SFINAE context (see Qt6/QtCore/qbitarray.h)
+		target_compile_options(${TARGET_NAME} PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-Wno-sfinae-incomplete>")
+	endif()
 	if(WITH_LTO)
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
 			target_compile_options(${TARGET_NAME} PRIVATE ${GCC_LTO_FLAGS})
